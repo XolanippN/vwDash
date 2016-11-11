@@ -1,12 +1,14 @@
 app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseObject, $firebaseArray, $timeout) {
-    var whiteList = ["x"];
-    db = firebase.database(); 
+     db = firebase.database();
+     var whiteList = ["x"]; 
      var roomOneOnOneMessages = {};
      var roomGroupMessages = {};
      var oneOnOneRooms = [];
      var groupRooms = [];
      var nameOfGroup= [];
      var groupRooms2 = {};
+     var averageMessages = [];
+     var totalTime = 0;
      var totalORoomsWithMessages = 0;
      var totalGRoomsWithMessages = 0;
      var totalGMessages = 0;
@@ -19,21 +21,17 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
       setTimeout(function () {
            x(function(a,b,c,d,e,f,g,h,i){
               $scope.$apply(function(){
-                  var oooo ={}
-                $scope.createdOneOnOne=a;
+                  $scope.createdOneOnOne= a;
                   $scope.usedOneOnOne = b;
-                  $scope.totalOMessages=c;
-                  $scope.longestOMessages=d;
+                  $scope.totalOMessages= c;
+                  $scope.longestOMessages= d;
                   $scope.createdGroups = e;
                   $scope.usedGroups = f;
-                  $scope.totalMesGroup =g;
-                  $scope.longestGroupMes = h;
-                  
-                 
-                  
+                  $scope.totalMesGroup = g;
+                  $scope.longestGroupMes = h; 
                 }); 
            });
-    }, 0);
+    },0);
           function x(callback){
         db.ref('/rooms').once("value", function (snapshot, prevChildKey) {
             console.info("***Fetching 'Rooms'***");
@@ -51,7 +49,7 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
                             groupRooms2[room] = rooms[room].name ;
                             
                           //  console.log(rooms[room].name)
-                        }
+                          }
                 }
                     if(oneOnOneOrGroup(rooms[room]) == "none")
                     {
@@ -63,7 +61,15 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
                     console.info("***Fetching 'room_messages'***");
                 var room_messages = snapshot.val();
                     console.info("***analyzing 'ONE ON ONE' rooms***");
+                    var k = 0;
+                    var timenow = Date.now();
                     for(room in room_messages){
+                            for(date in room_messages[room]){
+                                 if(k==0){
+                                    var totalTime = parseInt((timenow-room_messages[room][date].sent_at)/86400000);
+                                    }
+                                    k=2;
+                             }
                             for(roomone in oneOnOneRooms){
                                 if(room == oneOnOneRooms[roomone]){
                                     oneOnOneRoomsAnalysis(room,room_messages[room]);
@@ -73,7 +79,7 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
                     }
                     console.log("*********Total number of created one on one rooms is: "+  oneOnOneRooms.length +" ***");
                     console.log("*********Total number of used one on one rooms is: "+  totalORoomsWithMessages +" ***");
-                    console.log("*********Total number of one on one messages is: "+totalOMessages+" ***");
+                    console.log("*********Total number of one on one messages is: "+ totalOMessages +" ***");
                     console.info("***analyzing 'GROUP' rooms***");
                     groupRooms.length - 1;
                     for(room in room_messages){
@@ -85,24 +91,28 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
 
                     }
                     // console.log("*********Total number of created group rooms is: "+groupRooms.length +" ***");
-                  //  console.log("*********Total number of used one on one rooms is: "+  totalGRoomsWithMessages +" ***");
+                    //console.log("*********Total number of used one on one rooms is: "+  totalGRoomsWithMessages +" ***");
                     //console.log("*********Total number of group messages is: "+totalGMessages+" ***");
                     //totalMessages = totalGMessages+totalOMessages;
                     //console.log("*********Total number of  messages is: "+totalMessages+" ***");
                     //console.log("*********Longest one on one room conversation has: "+maxOMessages+" messages ***");
                     //console.log("*********Longest group room conversation has: "+maxGMessages+" messages ***");
-                //    console.log("*********one on one room messages object")
-                 //   console.log(roomOneOnOneMessages);
-                //     console.log("*********group room messages object")
-                    console.log(roomGroupMessages);
+                    //console.log("*********one on one room messages object")
+                    //console.log(roomOneOnOneMessages);
+                    //console.log("*********group room messages object")
                     nameOfRoom(groupRooms2,roomGroupMessages)
-                  //  console.log(nameOfGroup)
-                    callback(oneOnOneRooms.length,totalORoomsWithMessages,totalOMessages,maxOMessages ,groupRooms.length,totalGRoomsWithMessages,totalGMessages,maxGMessages,nameOfGroup)
+                    averageMessages.push({
+                       NumberOfDays:totalTime,
+                       NumberOfMessages:totalGMessages+totalOMessages,
+                       Average:(totalGMessages+totalOMessages)/totalTime
+                    })
+                    callback(oneOnOneRooms.length,totalORoomsWithMessages,totalOMessages,maxOMessages 
+                    ,groupRooms.length,totalGRoomsWithMessages,totalGMessages,maxGMessages,nameOfGroup,averageMessages
+                     )
                 });
 
            });
           }
-
 
 
 
@@ -116,11 +126,11 @@ function nameOfRoom(groupRooms2,roomGroupMessages){
                         name : groupRooms2[key],
                         total : roomGroupMessages[key],
                     })
-                }
-            }
-        }
-     }
-  }
+                 }
+              }
+          }
+       }
+    }
 }
 
 
@@ -137,7 +147,8 @@ function oneOnOneRoomsAnalysis(room,messages){
       maxOMessages = i; 
      } 
      totalORoomsWithMessages++;
-}
+ }
+
 function groupRoomsAnalysis(room,messages){
      var i = 0;
     for(messageid in messages){
@@ -150,7 +161,7 @@ function groupRoomsAnalysis(room,messages){
       maxGMessages = i; 
      } 
      totalGRoomsWithMessages++;
-}
+ }
 
 
 function oneOnOneOrGroup(room){
@@ -169,7 +180,6 @@ function oneOnOneOrGroup(room){
                 }
        return type;
 }   
-
 
 function WhitelistTester(whitelist,InRoom,room){
  var hasWatchlistMembersOnly = false;
@@ -198,6 +208,6 @@ function WhitelistTester(whitelist,InRoom,room){
     return hasWatchlistMembersOnly;
 }
 
-})
+});
 
 

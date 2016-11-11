@@ -1,0 +1,13 @@
+{
+    "jscodehints.detectedExclusions": [
+        "C:/Users/PSM GROUP/Documents/main_dash2/public/plugins/ckeditor/lang/hr.js",
+        "C:/Users/PSM GROUP/Documents/main_dash2/public/plugins/ckeditor/lang/hu.js",
+        "C:/Users/PSM GROUP/Documents/main_dash2/public/plugins/ckeditor/lang/id.js",
+        "bootstrap.wysihtml5.js",
+        "C:/Users/PSM GROUP/Documents/main_dash2/public/plugins/ckeditor/lang/mn.js",
+        "C:/Users/PSM GROUP/Documents/main_dash2/public/plugins/ckeditor/lang/ms.js",
+        "C:/Users/PSM GROUP/Documents/main_dash2/public/plugins/ckeditor/lang/nb.js",
+        "C:/Users/PSM GROUP/Documents/main_dash2/public/plugins/ckeditor/lang/nl.js",
+        "C:/Users/PSM GROUP/Documents/main_dash2/public/plugins/datepicker/locales/bootstrap-datepicker.da.js"
+    ]
+}

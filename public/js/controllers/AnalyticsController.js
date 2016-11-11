@@ -8,6 +8,8 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
      var roomGroupMessages = [];
      var oneOnOneRooms = [];
      var groupRooms = [];
+     var nameOfGroup= [];
+     var groupRooms2 = {};
      var totalORoomsWithMessages = 0;
      var totalGRoomsWithMessages = 0;
      var totalGMessages = 0;
@@ -48,6 +50,7 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
                 if(oneOnOneOrGroup(rooms[room]) == "group"){
                         if((WhitelistTester(whiteList,rooms[room],room)) == false){
                             groupRooms.push(room);
+                            groupRooms2[room] = rooms[room].name ;
                         }
                 }
                     if(oneOnOneOrGroup(rooms[room]) == "none")
@@ -95,6 +98,8 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
                  //   console.log(roomOneOnOneMessages);
                 //     console.log("*********group room messages object")
                     console.log(roomGroupMessages);
+                    nameOfRoom(groupRooms2,roomGroupMessages)
+                    console.log(nameOfGroup)
                     callback(oneOnOneRooms.length,totalORoomsWithMessages,totalOMessages,maxOMessages ,groupRooms.length,totalGRoomsWithMessages,totalGMessages,maxGMessages)
                 });
 
@@ -103,15 +108,31 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
     }
 
 
+function nameOfRoom(groupRooms2,roomGroupMessages){
+  for (var key in roomGroupMessages) {
+        if (roomGroupMessages.hasOwnProperty(key)) {
+        for (var key2 in groupRooms2) {
+            if (groupRooms2.hasOwnProperty(key2)) {
+                if( key == key2){
+                    nameOfGroup.push({
+                        name : groupRooms2[key],
+                        total : roomGroupMessages[key],
+                    })
+                }
+            }
+        }
+     }
+  }
+}
 
-
+/*
 function getName(x){
     var groupRef = roomRef.child(String(x));
     var group = $firebaseObject(groupRef);
     console.log(group)
     return group.name;
     
-}
+}*/
 
 function oneOnOneRoomsAnalysis(room,messages){
     var i = 0;

@@ -1,14 +1,5 @@
-    var firebase = require("firebase")
-    var prompt = require('prompt')
+app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseObject, $firebaseArray, $timeout) {
     var whiteList = ["x"];
-         // Initialize Firebase
-         console.info("***Initializing Firebase'***");
-
-     firebase.initializeApp({
-        serviceAccount: "main-db-fb6ad4d453f2.json",
-        databaseURL: "https://main-db-9a011.firebaseio.com" 
-    });
-   
     db = firebase.database(); 
      var roomOneOnOneMessages = {};
      var roomGroupMessages = {};
@@ -24,6 +15,26 @@
      var maxOMessages = 0;
      var totalMessages = 0
 
+
+      setTimeout(function () {
+           x(function(a,b,c,d,e,f,g,h,i){
+              $scope.$apply(function(){
+                  var oooo ={}
+                $scope.createdOneOnOne=a;
+                  $scope.usedOneOnOne = b;
+                  $scope.totalOMessages=c;
+                  $scope.longestOMessages=d;
+                  $scope.createdGroups = e;
+                  $scope.usedGroups = f;
+                  $scope.totalMesGroup =g;
+                  $scope.longestGroupMes = h;
+                  
+                 
+                  
+                }); 
+           });
+    }, 0);
+          function x(callback){
         db.ref('/rooms').once("value", function (snapshot, prevChildKey) {
             console.info("***Fetching 'Rooms'***");
             var rooms = snapshot.val();
@@ -73,23 +84,24 @@
                             }
 
                     }
-                    console.log("*********Total number of created group rooms is: "+groupRooms.length +" ***");
-                    console.log("*********Total number of used one on one rooms is: "+  totalGRoomsWithMessages +" ***");
-                    console.log("*********Total number of group messages is: "+totalGMessages+" ***");
-                    totalMessages = totalGMessages+totalOMessages;
-                    console.log("*********Total number of  messages is: "+totalMessages+" ***");
-                    console.log("*********Longest one on one room conversation has: "+maxOMessages+" messages ***");
-                    console.log("*********Longest group room conversation has: "+maxGMessages+" messages ***");
-                    console.log("*********one on one room messages object")
-                    //console.log(roomOneOnOneMessages);
-                    console.log("*********group room messages object")
-                   // console.log(roomGroupMessages);
-                   // console.log(groupRooms2)
+                    // console.log("*********Total number of created group rooms is: "+groupRooms.length +" ***");
+                  //  console.log("*********Total number of used one on one rooms is: "+  totalGRoomsWithMessages +" ***");
+                    //console.log("*********Total number of group messages is: "+totalGMessages+" ***");
+                    //totalMessages = totalGMessages+totalOMessages;
+                    //console.log("*********Total number of  messages is: "+totalMessages+" ***");
+                    //console.log("*********Longest one on one room conversation has: "+maxOMessages+" messages ***");
+                    //console.log("*********Longest group room conversation has: "+maxGMessages+" messages ***");
+                //    console.log("*********one on one room messages object")
+                 //   console.log(roomOneOnOneMessages);
+                //     console.log("*********group room messages object")
+                    console.log(roomGroupMessages);
                     nameOfRoom(groupRooms2,roomGroupMessages)
-                    console.log(nameOfGroup)
+                  //  console.log(nameOfGroup)
+                    callback(oneOnOneRooms.length,totalORoomsWithMessages,totalOMessages,maxOMessages ,groupRooms.length,totalGRoomsWithMessages,totalGMessages,maxGMessages,nameOfGroup)
                 });
 
-        });
+           });
+          }
 
 
 
@@ -186,6 +198,6 @@ function WhitelistTester(whitelist,InRoom,room){
     return hasWatchlistMembersOnly;
 }
 
-
+})
 
 

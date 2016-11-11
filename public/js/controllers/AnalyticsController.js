@@ -1,11 +1,17 @@
-app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseObject, $firebaseArray, $timeout) {
-
+    var firebase = require("firebase")
+    var prompt = require('prompt')
     var whiteList = ["x"];
+         // Initialize Firebase
+         console.info("***Initializing Firebase'***");
+
+     firebase.initializeApp({
+        serviceAccount: "main-db-fb6ad4d453f2.json",
+        databaseURL: "https://main-db-9a011.firebaseio.com" 
+    });
    
-    roomRef = firebase.database().ref().child('rooms');
     db = firebase.database(); 
-     var roomOneOnOneMessages = [];
-     var roomGroupMessages = [];
+     var roomOneOnOneMessages = {};
+     var roomGroupMessages = {};
      var oneOnOneRooms = [];
      var groupRooms = [];
      var nameOfGroup= [];
@@ -16,27 +22,8 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
      var totalOMessages = 0;
      var maxGMessages = 0;
      var maxOMessages = 0;
-     var totalMessages = 0;
-     
-    setTimeout(function () {
-           x(function(a,b,c,d,e,f,g,h){
-              $scope.$apply(function(){
-                  var oooo ={}
-                $scope.createdOneOnOne=a;
-                  $scope.usedOneOnOne = b;
-                  $scope.totalOMessages=c;
-                  $scope.longestOMessages=d;
-                  $scope.createdGroups = e;
-                  $scope.usedGroups = f;
-                  $scope.totalMesGroup =g;
-                  $scope.longestGroupMes = h;
-                  
-                 
-                  
-                }); 
-           });
-    }, 0);
-    function x(callback){
+     var totalMessages = 0
+
         db.ref('/rooms').once("value", function (snapshot, prevChildKey) {
             console.info("***Fetching 'Rooms'***");
             var rooms = snapshot.val();
@@ -51,6 +38,8 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
                         if((WhitelistTester(whiteList,rooms[room],room)) == false){
                             groupRooms.push(room);
                             groupRooms2[room] = rooms[room].name ;
+                            
+                          //  console.log(rooms[room].name)
                         }
                 }
                     if(oneOnOneOrGroup(rooms[room]) == "none")
@@ -66,46 +55,43 @@ app.controller('AnalyticsController', function($scope,$firebaseAuth, $firebaseOb
                     for(room in room_messages){
                             for(roomone in oneOnOneRooms){
                                 if(room == oneOnOneRooms[roomone]){
-                                    
                                     oneOnOneRoomsAnalysis(room,room_messages[room]);
                                 }
                             }
 
                     }
-                 //   console.log("*********Total number of created one on one rooms is: "+  oneOnOneRooms.length +" ***");
-                   // console.log("*********Total number of used one on one rooms is: "+  totalORoomsWithMessages +" ***");
-                   // console.log("*********Total number of one on one messages is: "+totalOMessages+" ***");
-                   // console.info("***analyzing 'GROUP' rooms***");
+                    console.log("*********Total number of created one on one rooms is: "+  oneOnOneRooms.length +" ***");
+                    console.log("*********Total number of used one on one rooms is: "+  totalORoomsWithMessages +" ***");
+                    console.log("*********Total number of one on one messages is: "+totalOMessages+" ***");
+                    console.info("***analyzing 'GROUP' rooms***");
                     groupRooms.length - 1;
                     for(room in room_messages){
                             for(roomone in groupRooms){
                                 if(room == groupRooms[roomone]){
-                                    var groupRef = roomRef.child(String(room));
-                                    var group = $firebaseObject(groupRef);
-                                    groupRoomsAnalysis(group.name,room_messages[room]);
+                                    groupRoomsAnalysis(room,room_messages[room]);
                                 }
                             }
 
                     }
-                   // console.log("*********Total number of created group rooms is: "+groupRooms.length +" ***");
-                  //  console.log("*********Total number of used one on one rooms is: "+  totalGRoomsWithMessages +" ***");
-                    //console.log("*********Total number of group messages is: "+totalGMessages+" ***");
-                    //totalMessages = totalGMessages+totalOMessages;
-                    //console.log("*********Total number of  messages is: "+totalMessages+" ***");
-                    //console.log("*********Longest one on one room conversation has: "+maxOMessages+" messages ***");
-                    //console.log("*********Longest group room conversation has: "+maxGMessages+" messages ***");
-                //    console.log("*********one on one room messages object")
-                 //   console.log(roomOneOnOneMessages);
-                //     console.log("*********group room messages object")
-                    console.log(roomGroupMessages);
+                    console.log("*********Total number of created group rooms is: "+groupRooms.length +" ***");
+                    console.log("*********Total number of used one on one rooms is: "+  totalGRoomsWithMessages +" ***");
+                    console.log("*********Total number of group messages is: "+totalGMessages+" ***");
+                    totalMessages = totalGMessages+totalOMessages;
+                    console.log("*********Total number of  messages is: "+totalMessages+" ***");
+                    console.log("*********Longest one on one room conversation has: "+maxOMessages+" messages ***");
+                    console.log("*********Longest group room conversation has: "+maxGMessages+" messages ***");
+                    console.log("*********one on one room messages object")
+                    //console.log(roomOneOnOneMessages);
+                    console.log("*********group room messages object")
+                   // console.log(roomGroupMessages);
+                   // console.log(groupRooms2)
                     nameOfRoom(groupRooms2,roomGroupMessages)
                     console.log(nameOfGroup)
-                    callback(oneOnOneRooms.length,totalORoomsWithMessages,totalOMessages,maxOMessages ,groupRooms.length,totalGRoomsWithMessages,totalGMessages,maxGMessages)
                 });
 
         });
 
-    }
+
 
 
 function nameOfRoom(groupRooms2,roomGroupMessages){
@@ -125,14 +111,7 @@ function nameOfRoom(groupRooms2,roomGroupMessages){
   }
 }
 
-/*
-function getName(x){
-    var groupRef = roomRef.child(String(x));
-    var group = $firebaseObject(groupRef);
-    console.log(group)
-    return group.name;
-    
-}*/
+
 
 function oneOnOneRoomsAnalysis(room,messages){
     var i = 0;
@@ -140,7 +119,7 @@ function oneOnOneRoomsAnalysis(room,messages){
       i++;
     }
    // console.log("*********In room "+room+" there are: "+i+" messages ***"); 
-    roomOneOnOneMessages.push({name : room,total : i});
+     roomOneOnOneMessages[room] = i;
     totalOMessages = totalOMessages + i;
     if(maxOMessages < i){
       maxOMessages = i; 
@@ -153,7 +132,7 @@ function groupRoomsAnalysis(room,messages){
       i++;
     }
     // console.log("*********In room "+room+" there are: "+i+" messages ***");
-    roomGroupMessages.push({name : room,total : i});
+     roomGroupMessages[room] = i;
     totalGMessages = totalGMessages + i;
     if(maxGMessages < i){
       maxGMessages = i; 
@@ -207,6 +186,6 @@ function WhitelistTester(whitelist,InRoom,room){
     return hasWatchlistMembersOnly;
 }
 
-});
+
 
 
